@@ -1,0 +1,137 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Maps Lead Collector</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="header">
+        <div class="brand">
+          <div class="mark">
+            <img class="mark-img" src="../../assets/icons/icon48_new.png" alt="Maps Lead Collector" />
+          </div>
+          <div class="brand-text">
+            <div class="brand-title">Maps Lead Collector</div>
+            <div class="brand-sub">Google Maps → CSV Leads</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="view-maps" class="panel hidden">
+        <div class="card hero">
+          <div class="hero-title">Google Maps tab is not open</div>
+          <div class="hero-sub">To collect leads, open Google Maps and stay on a search results list.</div>
+          <input id="maps-query" class="input" placeholder="Search keyword (e.g., restaurants in Dhaka)" />
+          <button id="maps-search" class="btn primary full">Search on Google Maps</button>
+        </div>
+        <div class="card">
+          <div class="section-title">Email Scan (this tab)</div>
+          <div class="section-sub">Detect emails from the current page text and links.</div>
+          <button id="scan-emails" class="btn full">Email Scan</button>
+          <div id="emails" class="emails"></div>
+        </div>
+      </div>
+
+      <div id="view-maps-ready" class="panel hidden">
+        <div class="card stat">
+          <div class="stat-top">
+            <div>
+              <div class="stat-label">Total Leads</div>
+              <div id="count" class="stat-value mono">0</div>
+            </div>
+            <div id="running-pill" class="pill off">
+              <span class="pill-dot"></span>
+              <span id="running" class="pill-text">Stopped</span>
+            </div>
+          </div>
+          <div id="status" class="status"></div>
+        </div>
+        <div class="card">
+          <div class="grid">
+            <button id="start" class="btn primary">Start</button>
+            <button id="stop" class="btn">Stop</button>
+            <button id="export" class="btn">CSV Export</button>
+            <button id="clear" class="btn danger">Clear</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">Options</div>
+          <div class="form-grid">
+            <label class="form-row">
+              <div class="form-label">Email Fetch</div>
+              <select id="email-mode" class="select">
+                <option value="off">Off</option>
+                <option value="home">Home (fast)</option>
+                <option value="deep">Deep (contact/about)</option>
+              </select>
+            </label>
+            <label class="form-row">
+              <div class="form-label">Max Leads</div>
+              <input id="max-leads" class="input" type="number" min="0" step="1" placeholder="0 = unlimited" />
+            </label>
+            <label class="form-row">
+              <div class="form-label">Delay (ms)</div>
+              <input id="delay-ms" class="input" type="number" min="0" step="50" placeholder="250" />
+            </label>
+          </div>
+          <div class="section-sub">When Email Fetch is on, it will try up to 10 seconds per website.</div>
+        </div>
+        <div class="card">
+          <div class="section-title">Collect Fields</div>
+          <div class="section-sub">Selecting Email makes collection slower (up to 10 seconds per website).</div>
+          <div class="field-grid">
+            <label class="field"><input type="checkbox" id="f-name" />Name</label>
+            <label class="field"><input type="checkbox" id="f-phone" />Phone</label>
+            <label class="field"><input type="checkbox" id="f-address" />Address</label>
+            <label class="field"><input type="checkbox" id="f-website" />Website</label>
+            <label class="field"><input type="checkbox" id="f-emails" />Email</label>
+            <label class="field"><input type="checkbox" id="f-rating" />Rating</label>
+            <label class="field"><input type="checkbox" id="f-reviews" />Reviews</label>
+            <label class="field"><input type="checkbox" id="f-category" />Category</label>
+            <label class="field"><input type="checkbox" id="f-placeUrl" />Place URL</label>
+            <label class="field"><input type="checkbox" id="f-openingHours" />Opening hours</label>
+            <label class="field"><input type="checkbox" id="f-priceRange" />Price range</label>
+            <label class="field"><input type="checkbox" id="f-description" />Description</label>
+            <label class="field"><input type="checkbox" id="f-latitude" />Latitude</label>
+            <label class="field"><input type="checkbox" id="f-longitude" />Longitude</label>
+            <label class="field"><input type="checkbox" id="f-city" />City/District</label>
+            <label class="field"><input type="checkbox" id="f-country" />Country</label>
+            <label class="field"><input type="checkbox" id="f-postalCode" />Postal code</label>
+            <label class="field"><input type="checkbox" id="f-plusCode" />Plus code</label>
+            <label class="field"><input type="checkbox" id="f-neighborhood" />Neighborhood</label>
+            <label class="field"><input type="checkbox" id="f-streetName" />Street name</label>
+            <label class="field"><input type="checkbox" id="f-busyStatus" />Busy status</label>
+            <label class="field"><input type="checkbox" id="f-popularTimes" />Popular times</label>
+            <label class="field"><input type="checkbox" id="f-photos" />Photos</label>
+            <label class="field"><input type="checkbox" id="f-socialLinks" />Social links</label>
+            <label class="field"><input type="checkbox" id="f-menuUrl" />Menu URL</label>
+            <label class="field"><input type="checkbox" id="f-amenities" />Amenities</label>
+            <label class="field"><input type="checkbox" id="f-claimedStatus" />Claimed</label>
+            <label class="field"><input type="checkbox" id="f-deliveryAvailable" />Delivery</label>
+            <label class="field"><input type="checkbox" id="f-reviewsData" />Individual reviews</label>
+            <label class="field"><input type="checkbox" id="f-placeId" />Place ID</label>
+          </div>
+        </div>
+        <div class="card">
+          <div class="stat-top">
+            <div>
+              <div class="section-title">Leads</div>
+              <div class="section-sub">Preview + search + actions</div>
+            </div>
+            <div class="actions">
+              <button id="refresh-leads" class="btn small">Refresh</button>
+              <button id="dedupe" class="btn small">Dedupe</button>
+              <button id="export-json" class="btn small">JSON</button>
+            </div>
+          </div>
+          <input id="lead-search" class="input" placeholder="Search (name/phone/website/email)" />
+          <div id="lead-list" class="lead-list"></div>
+        </div>
+      </div>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

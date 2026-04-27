@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Maps Lead Collector",
+  "short_name": "MLC",
+  "version": "0.1.0",
+  "description": "Extract business leads from Google Maps search results and export to CSV/JSON. Contact: muhammad.sujon.cse@gmail.com",
+  "homepage_url": "https://github.com/developer-sujon",
+  "icons": {
+    "16": "assets/icons/icon16_new.png",
+    "32": "assets/icons/icon32_new.png",
+    "48": "assets/icons/icon48_new.png",
+    "128": "assets/icons/icon128_new.png"
+  },
+  "permissions": ["storage", "activeTab", "scripting", "downloads", "tabs"],
+  "host_permissions": ["https://www.google.com/maps/*", "*://*/*"],
+  "action": {
+    "default_title": "Maps Lead Collector",
+    "default_icon": {
+      "16": "assets/icons/icon16_new.png",
+      "32": "assets/icons/icon32_new.png",
+      "48": "assets/icons/icon48_new.png",
+      "128": "assets/icons/icon128_new.png"
+    },
+    "default_popup": "src/popup/popup.html"
+  },
+  "background": {
+    "service_worker": "src/background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.google.com/maps/*"],
+      "js": ["src/content/contentScript.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}
