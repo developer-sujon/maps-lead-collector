@@ -16,10 +16,10 @@ const DEFAULT_SETTINGS = {
     address: true,
     website: true,
     emails: false,
-    rating: true,
-    reviews: true,
-    category: true,
-    placeUrl: true,
+    rating: false,
+    reviews: false,
+    category: false,
+    placeUrl: false,
     openingHours: false,
     priceRange: false,
     description: false,
@@ -122,6 +122,60 @@ function getDataItemText(root, itemId) {
   const raw = firstNonEmpty(aria, textOf(button));
   const normalized = raw.replace(/^(Address|Phone|Website|Directions|Located in|Plus code|Add website)\s*:\s*/i, "");
   return normalized.trim();
+}
+
+function normalizePhoneText(value) {
+  const raw = String(value || "").trim();
+  if (!raw) return "";
+  const cleaned = raw
+    .replace(/^(Phone|Call|Copy phone number|Phone number|Telephone|Tel)\s*:?\s*/i, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+  const match = cleaned.match(/\+?\d[\d\s().-]{6,}\d/);
+  return match ? match[0].replace(/\s{2,}/g, " ").trim() : "";
+}
+
+function findPhone(root) {
+  if (!root) return "";
+
+  const direct = [
+    getDataItemText(root, "phone"),
+    getDataItemText(root, "phone:tel")
+  ];
+  for (const value of direct) {
+    const phone = normalizePhoneText(value);
+    if (phone) return phone;
+  }
+
+  const nodes = Array.from(
+    root.querySelectorAll(
+      [
+        'a[href^="tel:"]',
+        'button[data-item-id^="phone"]',
+        'div[data-item-id^="phone"]',
+        'a[data-item-id^="phone"]',
+        'button[aria-label*="phone" i]',
+        'div[aria-label*="phone" i]',
+        'a[aria-label*="phone" i]',
+        'button[aria-label*="call" i]',
+        'a[aria-label*="call" i]'
+      ].join(",")
+    )
+  ).slice(0, 25);
+
+  for (const node of nodes) {
+    const candidates = [
+      node.getAttribute("href") || "",
+      node.getAttribute("aria-label") || "",
+      textOf(node)
+    ];
+    for (const candidate of candidates) {
+      const normalized = normalizePhoneText(String(candidate).replace(/^tel:/i, ""));
+      if (normalized) return normalized;
+    }
+  }
+
+  return "";
 }
 
 function getWebsiteUrl(root) {
@@ -499,7 +553,7 @@ async function collectCurrentDetails() {
   if (!name) return null;
 
   const address = getDataItemText(root, "address");
-  const phone = getDataItemText(root, "phone") || getDataItemText(root, "phone:tel");
+  const phone = findPhone(root);
   const website = getWebsiteUrl(root) || getDataItemText(root, "authority");
   const { rating, reviews } = parseRatingAndReviews(root);
   const category = parseCategory(root);
